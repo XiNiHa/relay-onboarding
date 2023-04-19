@@ -26,6 +26,7 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-relay: ^15.0.0
+      react-router-dom: ^6.10.0
       relay-compiler: ^15.0.0
       relay-runtime: ^15.0.0
       rescript: ^10.1.4
@@ -40,6 +41,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-relay: 15.0.0_react@18.2.0
+      react-router-dom: 6.10.0_biqbaboplfbrettd7655fr4n2y
       relay-runtime: 15.0.0
       rescript-relay: 1.1.1_ngy7swcz6kjyvwz4eia6d2ek6y
       rescript-webapi: 0.7.0
@@ -68,6 +70,7 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-relay: ^15.0.0
+      react-router-dom: ^6.10.0
       relay-compiler: ^15.0.0
       relay-runtime: ^15.0.0
       typescript: ^4.9.3
@@ -77,6 +80,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-relay: 15.0.0_react@18.2.0
+      react-router-dom: 6.10.0_biqbaboplfbrettd7655fr4n2y
       relay-runtime: 15.0.0
     devDependencies:
       '@types/react': 18.0.37
@@ -892,6 +896,11 @@ packages:
 
   /@polka/url/1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
+    dev: false
+
+  /@remix-run/router/1.5.0:
+    resolution: {integrity: sha512-bkUDCp8o1MvFO+qxkODcbhSqRa6P2GXgrGZVpt0dCXNW2HCSCqYI0ZoAqEOSAjRWmmlKcYgFvN4B4S+zo/f8kg==}
+    engines: {node: '>=14'}
     dev: false
 
   /@rescript/core/0.2.0:
@@ -3728,6 +3737,29 @@ packages:
       relay-runtime: 15.0.0
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /react-router-dom/6.10.0_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-E5dfxRPuXKJqzwSe/qGcqdwa18QiWC6f3H3cWXM24qj4N0/beCIf/CWTipop2xm7mR0RCS99NnaqPNjHtrAzCg==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.5.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-router: 6.10.0_react@18.2.0
+    dev: false
+
+  /react-router/6.10.0_react@18.2.0:
+    resolution: {integrity: sha512-Nrg0BWpQqrC3ZFFkyewrflCud9dio9ME3ojHCF/WLsprJVzkq3q3UeEhMCAW1dobjeGbWgjNn/PVF6m46ANxXQ==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.5.0
+      react: 18.2.0
     dev: false
 
   /react/16.14.0:

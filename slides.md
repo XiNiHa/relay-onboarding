@@ -277,6 +277,18 @@ const App = () => {
 
 # 핸즈온: 저장소 검색기 만들기
 
+<img src="/assets/handson-1.png" class="w-500px">
+
+- 위 스샷처럼 Owner와 Name을 입력받아서 `nameWithOwner`와 `stargazerCount`를 보여주면 됩니다.
+
+  - 핸즈온 샌드박스 기본 사용법은 [XiNiHa/relay-onboarding 레포](https://github.com/XiNiHa/relay-onboarding)의 README를 참조하세요.
+
+  - 아래의 Repo 정보를 보여 주는 부분은 별도 컴포넌트로 분리해주세요.
+
+  - Debounce를 적용하셔야 API Rate Limiting을 피하실 수 있을 겁니다(...)
+
+  - 검색을 실행할 때 화면이 깜빡이지 않게 해 보세요. (힌트: Suspense 트리거를 막으세요)
+
 ---
 layout: end
 ---
