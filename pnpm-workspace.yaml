@@ -1,0 +1,4 @@
+packages:
+  - "./"
+  - "./sandbox/*"
+  - "./examples/*"

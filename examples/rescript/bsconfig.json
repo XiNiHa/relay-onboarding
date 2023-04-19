@@ -1,0 +1,30 @@
+{
+  "name": "relay-onboarding-examples-rescript",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    }
+  ],
+  "package-specs": [
+    {
+      "module": "es6",
+      "in-source": true
+    }
+  ],
+  "suffix": ".bs.js",
+  "jsx": {
+    "version": 4,
+    "mode": "automatic"
+  },
+  "ppx-flags": ["rescript-relay/ppx"],
+  "bs-dependencies": [
+    "@rescript/react",
+    "@rescript/core",
+    "rescript-relay",
+    "rescript-webapi"
+  ],
+  "bsc-flags": [
+    "-open RescriptCore"
+  ]
+}
