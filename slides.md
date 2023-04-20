@@ -79,7 +79,6 @@ query {
 
 - 이것들을 잘 조합해서 스키마를 만들고 쿼리를 만듬
 
-
 ---
 layout: two-cols
 ---
@@ -87,7 +86,7 @@ layout: two-cols
 # 예시 쿼리
 
 ```graphql {all|1|2,4|5|8-13}
-query($name: String!) {
+query ($name: String!) {
   repository(owner: "portone-io", name: $name) {
     name
     issues(first: 10) {
@@ -217,11 +216,12 @@ const App = () => {
       }
     `,
     {}
-  )
+  );
 
-  return <>{data.viewer.login}</>
-}
+  return <>{data.viewer.login}</>;
+};
 ```
+
 ---
 
 # Relay 기본 Hooks 알아보기
@@ -244,11 +244,11 @@ const RepoSummary = ({ $repository }) => {
         stargazerCount
       }
     `,
-    $repository,
-  )
+    $repository
+  );
 
-  return <>{repository.nameWithOwner}</>
-}
+  return <>{repository.nameWithOwner}</>;
+};
 ```
 
 ```tsx
@@ -264,11 +264,11 @@ const App = () => {
         }
       }
     `,
-    {},
-  )
+    {}
+  );
 
-  return <RepoSummary $repository={data.repository} />
-}
+  return <RepoSummary $repository={data.repository} />;
+};
 ```
 
 </div>
@@ -288,6 +288,87 @@ const App = () => {
   - Debounce를 적용하셔야 API Rate Limiting을 피하실 수 있을 겁니다(...)
 
   - 검색을 실행할 때 화면이 깜빡이지 않게 해 보세요. (힌트: Suspense 트리거를 막으세요)
+
+---
+
+# Fragment에서 Argument 선언하기
+
+- Relay의 Fragment는 Argument를 받을 수 있습니다 (표준 GraphQL에선 [아직 RFC 단계](https://github.com/graphql/graphql-spec/pull/1010))
+
+- 이렇게 선언하고
+
+```graphql
+fragment RepoSearch_query on Query
+@argumentDefinitions(
+  owner: { type: "String", defaultValue: "" }
+  name: { type: "String", defaultValue: "" }
+) {
+  repository(owner: $owner, name: $name) {
+    name
+  }
+}
+```
+
+- 이렇게 씁니다
+
+```graphql
+query AppQuery($name: String!) {
+  ...RepoSearch_query @arguments(owner: "portone-io", name: $name)
+}
+```
+
+---
+
+# Refetchable Fragment
+
+- Relay에서는 특정 Fragment의 데이터만 Refetch하는 것이 가능합니다.
+
+  - Refetch 시에는 해당 Fragment의 Argument도 다르게 지정해서 넣을 수 있습니다.
+
+  - Fragment Refetch는 해당 Fragment를 사용하는 컴포넌트를 Suspend시킵니다.
+
+<div class="h-340px overflow-y-auto">
+
+```tsx
+const RepoSearch = ({ $query }) => {
+  const [query, refetch] = useRefetchableFragment(
+    graphql`
+      fragment RepoSearch_query on Query
+      @argumentDefinitions(
+        owner: { type: "String", defaultValue: "" }
+        name: { type: "String", defaultValue: "" }
+      )
+      @refetchable(queryName: "RepoSearchRefetchQuery") {
+        repository(owner: $owner, name: $name) {
+          name
+        }
+      }
+    `,
+    $query
+  );
+
+  useEffect(() => {
+    const timeout = setTimeout(() => refetch({}), 3000); // 인자로는 Partial<Variables>가 들어감
+    return () => clearTimeout(timeout);
+  });
+
+  return <>{query.repository?.name}</>;
+};
+```
+
+</div>
+
+---
+
+# 핸즈온: 저장소 검색기 업그레이드하기
+
+- 검색 내용을 갱신할 때 쿼리 전체가 새로 날아가는 대신, Fragment만 Refetch되도록 컴포넌트를 분리해 보세요.
+
+- Debounce를 `setState` 함수들에 먹이는 대신, 검색 역할을 담당할 컴포넌트의 `useEffect`에서 처리해 보세요.
+
+- 검색이 이뤄지는 동안, 아래쪽의 검색 결과를 보여주는 부분만 `Searching...` 이 보여지도록<br>Suspense를 활용해서 개선해 보세요! (스샷 참조)
+
+<img src="/assets/handson-2.png" class="w-500px">
 
 ---
 layout: end

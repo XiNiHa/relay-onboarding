@@ -4,11 +4,16 @@ import { RelayEnvironmentProvider } from "react-relay";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { environment } from "./RelayEnvironment";
 import HandsOn1 from "./HandsOn1";
+import HandsOn2 from "./HandsOn2";
 
 const router = createBrowserRouter([
   {
     path: "/handson-1",
     element: <HandsOn1 />,
+  },
+  {
+    path: "/handson-2",
+    element: <HandsOn2 />,
   },
 ]);
 
