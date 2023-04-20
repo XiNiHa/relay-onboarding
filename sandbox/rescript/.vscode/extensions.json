@@ -1,3 +1,6 @@
 {
-  "recommendations": ["gabrielnordeborn.vscode-rescript-relay"]
+  "recommendations": [
+    "gabrielnordeborn.vscode-rescript-relay",
+    "chenglou92.rescript-vscode"
+  ]
 }
