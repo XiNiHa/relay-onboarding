@@ -6,20 +6,29 @@ let environment = {
     ~fetchFunction=(operation, variables, _cacheConfig, _uploadables) => {
       open Webapi.Fetch
 
-      fetchWithInit(
-        "https://api.github.com/graphql",
-        RequestInit.make(
-          ~method_=Post,
-          ~headers=HeadersInit.makeWithArray([
-            ("Content-Type", "application/json"),
-            ("Authorization", `Bearer ${githubAccessToken}`),
-          ]),
-          ~body=BodyInit.make(
-            Js.Json.stringifyAny({"query": operation.text, "variables": variables})->Option.getExn,
-          ),
-          (),
-        ),
-      )->Promise.then(res => res->Response.json)
+      (
+        async () => {
+          let res = await fetchWithInit(
+            "https://api.github.com/graphql",
+            RequestInit.make(
+              ~method_=Post,
+              ~headers=HeadersInit.makeWithArray([
+                ("Content-Type", "application/json"),
+                ("Authorization", `Bearer ${githubAccessToken}`),
+              ]),
+              ~body=BodyInit.make(
+                Js.Json.stringifyAny({
+                  "query": operation.text,
+                  "variables": variables,
+                })->Option.getExn,
+              ),
+              (),
+            ),
+          )
+
+          await Response.json(res)
+        }
+      )()
     },
     (),
   )
