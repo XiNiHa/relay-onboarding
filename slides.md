@@ -371,5 +371,91 @@ const RepoSearch = ({ $query }) => {
 <img src="/assets/handson-2.png" class="w-500px">
 
 ---
+
+# Relay로 무한스크롤 페이지네이션 처리하기
+
+- `usePaginationFragment()`
+
+  - [GraphQL Cursor Connections 스펙](https://relay.dev/graphql/connections.htm)을 만족하는 필드에 대해서<br>간편하게 무한스크롤 페이지네이션을 구현할 수 있도록 돕는 Hook
+
+  - Fragment 정의만 적절히 해 두면, `loadNext()` 등 무한스크롤 처리를 위한 다양한 유틸리티들을 제공해준다.
+
+```graphql
+fragment RepoSearchFragment on Query
+@argumentsDefinitions(
+  query: { type: "String!" }
+  cursor: { type: "String" }
+  count: { type: "Int", defaultValue: 10 }
+)
+@refetchable(queryName: "RepoSearchRefetchQuery") {
+  search(query: $query, type: REPOSITORY, first: $count, after: $cursor)
+    @connection(key: "RepoSearchFragment_search") {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+---
+
+# 사용법
+
+```tsx
+const RepoSearch = ({ $query }) => {
+  const { data, loadNext } = usePaginationFragment(
+    RepoSearchFragment, // 생략
+    $query,
+  )
+
+  return (
+    <>
+      {data.search.edges.map(({ node }) => (
+        <div key={node.id}>{node.name}</div>
+      ))}
+      <button
+        onClick={() => {
+          startTransition(() => {
+            loadNext(10)
+          })
+        }}>
+        더 불러오기
+      </button>
+    </>
+  )
+}
+```
+
+---
+
+# `usePaginationFramgment()`의 반환값
+
+- `data`: 말 그대로 Fragment를 가져온 데이터를 반환
+
+- `loadNext()` / `loadPrevious()`: 다음/이전 항목들을 원하는 갯수만큼 가져오는 함수
+
+  - `loadNext()`를 하려면 `first`와 `after`가, `loadPrevious()`를 하려면 `last`와 `before`가 필요
+
+- `isLoadingNext` / `isLoadingPrevious`: 다음/이전 항목들을 가져오고 있는지를 나타냄
+
+- `refetch()`: 일반적인 `useRefetchableFragment`의 그것과 동일
+
+---
+
+# 핸즈온: 저장소 검색기에 페이지네이션 붙이기
+
+- 방금 배운 `usePaginationFragment`를 가지고 저장소 검색기에 페이지네이션을 붙여봅시다.
+
+- 지금까지는 저장소를 `Query.repository(owner, name)`으로 가져왔는데,<br>이제부턴 `Query.search(query, type: REPOSITORY)`로 가져와보겠습니다.
+
+- 검색창이 `owner`랑 `name` 용으로 나뉘어져 있었는데, `query` 용으로 하나로 합칩시다.
+
+- 최초 10개의 항목을 보여주고, 이후 `더 불러오기` 버튼을 누르면 10개 더 불러오도록 해 봅시다.<br>불러오는 중일 땐 버튼의 텍스트를 `불러오는 중...`으로 바꾸고, 버튼을 비활성화시킵시다.
+
+<img src="/assets/handson-3.png" class="w-250px">
+
+---
 layout: end
 ---

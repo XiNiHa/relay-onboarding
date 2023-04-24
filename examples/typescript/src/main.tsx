@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { environment } from "./RelayEnvironment";
 import HandsOn1 from "./HandsOn1";
 import HandsOn2 from "./HandsOn2";
+import HandsOn3 from "./HandsOn3";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
   {
     path: "/handson-2",
     element: <HandsOn2 />,
+  },
+  {
+    path: "/handson-3",
+    element: <HandsOn3 />,
   },
 ]);
 

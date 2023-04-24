@@ -24,7 +24,7 @@ module RepoSearch = {
       owner: { type: "String", defaultValue: "" }
       name: { type: "String", defaultValue: "" }
     )
-    @refetchable(queryName: "RepoSearchRefetchQuery") {
+    @refetchable(queryName: "HandsOn2_RepoSearchRefetchQuery") {
       repository(owner: $owner, name: $name) {
         ...HandsOn2_RepoSummary_repository
       }
