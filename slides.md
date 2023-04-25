@@ -457,5 +457,109 @@ const RepoSearch = ({ $query }) => {
 <img src="/assets/handson-3.png" class="w-250px">
 
 ---
+
+# `useMutation()`: 서버에 Mutation 보내기
+
+- 각 컴포넌트에서 사용할 Mutation을 `useMutation()`으로 정의하고,<br>함수를 호출하여 Mutation을 트리거할 수 있음
+
+```tsx
+const FollowButton = ({ id }) => {
+  const [followUser, isFollowUserInFlight] = useMutation(
+    graphql`
+      mutation FollowButton_FollowUserMutation($id: ID!) {
+        followUser(input: { userId: $id }) {
+          user {
+            id
+            viewerIsFollowing
+          }
+        }
+      }
+    `
+  )
+
+  return <button onClick={() => followUser({ variables: { id } })}>팔로우</button>
+}
+```
+
+---
+
+# Mutation 결과값으로 캐시 업데이트하기
+
+- (아까 설명했듯이) Relay는 모든 값을 ID 등을 키로 삼아서 중앙 캐시 저장소에 정규화하여 저장한다
+
+- 데이터를 업데이트하고자 하는 항목의 새 데이터를 Mutation의 결과값으로 가져오기만 하면,<br>
+  Relay가 알아서 중앙 캐시의 데이터를 업데이트하고, UI도 함께 업데이트된다
+
+  - 예를 들어, User 타입의 경우 `id` 필드를 키로 삼아서 캐시에 저장된다.<br>
+    이때 Mutation의 결과값으로 특정 User의 데이터를 업데이트하려면,<br>
+    Mutation의 결과값에서 User를 특정하기 위한 `id`와 업데이트할 필드(`viewerIsFollowing` 등)를 선택해서<br>
+    데이터를 가져오면, 응답받은 `id`와 연관된 데이터가 캐시에서 알아서 업데이트된다.
+
+---
+
+# Relay 캐시가 키를 정하는 방법
+
+1. 만약 타입이 Node 인터페이스(`interface Node { id: ID! }`)를 구현할 경우,<br>
+   `id`를 키로 삼아서 캐시에 저장함
+
+2. 객체가 Node를 구현하는 타입 안에 속해 있을 경우,<br>
+   가장 가까운 Node로부터 이어져오는 경로를 키로 삼아서 캐시에 저장함<br>
+   리스트 타입의 경우, 인덱스를 경로에 포함함<br>
+   (예: `Node.fieldA.fieldB[0]`를 나타내는 키: `client:{Node.id}:fieldA:fieldB:0`)
+
+3. 가까운 Node가 없을 경우, 최상위 타입(`Query`)으로부터의 경로를 키로 삼아서 캐시에 저장함<br>
+   리스트 타입의 경우, 인덱스를 경로에 포함함<br>
+   (예: `Query.fieldA.fieldB[0]`를 나타내는 키: `client:root:fieldA:fieldB:0`)
+
+- 정확히 어떤 포맷으로 키가 생성되는지는 몰라도, 어떤 과정을 걸쳐서 키가 생성되는지는 알아야<br>
+  효율적이고 정확하게 캐시를 업데이트할 수 있음
+
+- 그래도 헷갈릴 땐 [Relay DevTools](https://github.com/relayjs/relay-devtools)를 사용하면 현재 캐시 상태를 볼 수 있음
+
+---
+
+# `useMutation()`으로 Optimistic Response 날먹하기
+
+- `useMutation()`이 반환하는 dispatch 함수는 Variables 외에도 다양한 옵션을 받는다
+
+- 이 중 `optimisticResponse`를 활용하면 Optimistic Response를 매우 간단하게 구현할 수 있다
+
+- `optimisticResponse` 옵션에 Mutation의 예상되는 응답을 넣으면 Relay가 알아서 캐시를 미리 업데이트해 준다
+
+```tsx
+const followUserWithId = (id: string) => {
+  return followUser({
+    variables: { id },
+    optimisticResponse: {
+      followUser: {
+        user: {
+          id,
+          viewerIsFollowing: true,
+        },
+      },
+    },
+  })
+}
+```
+
+---
+
+# 핸즈온: 저장소 Owner 팔로우 / 언팔로우 기능 추가하기
+
+<img src="/assets/handson-4.webp" class="w-250px absolute right-30">
+
+- 우측 스샷처럼 저장소의 Owner(`Repository.owner`)를 대상으로<br>
+  팔로우/언팔로우 버튼 표시하기
+
+  - Owner가 User가 아니고 Organization일 수도 있는데,<br>
+    이 경우에는 그냥 버튼 숨겨지게 처리
+
+- 클릭하면 상황에 맞게 `followUser`/`unfollowUser` 호출하기
+
+- Mutation이 일어나는 중에는 버튼 비활성화시키고, 로딩 표시 보여주기
+
+- Optimistic Response 활용해서 버튼 텍스트는 미리 업데이트시키기
+
+---
 layout: end
 ---
