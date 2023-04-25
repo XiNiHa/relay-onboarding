@@ -13,6 +13,7 @@ const fetchFn: FetchFunction = (params, variables) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-Github-Next-Global-ID": "1",
       Authorization: `Bearer ${githubAccessToken}`,
     },
     body: JSON.stringify({ query: params.text, variables }),

@@ -14,6 +14,7 @@ let environment = {
               ~method_=Post,
               ~headers=HeadersInit.makeWithArray([
                 ("Content-Type", "application/json"),
+                ("X-Github-Next-Global-ID", "1"),
                 ("Authorization", `Bearer ${githubAccessToken}`),
               ]),
               ~body=BodyInit.make(
