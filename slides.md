@@ -561,5 +561,73 @@ const followUserWithId = (id: string) => {
 - Optimistic Response 활용해서 버튼 텍스트는 미리 업데이트시키기
 
 ---
+
+# `usePreloadedQuery()`: 쿼리를 먼저 불러오기
+
+- 쿼리를 불러오는 시점을 앞으로 당기는 것은 사용자가 로딩을 최소한으로 느끼게 해 준다는 점에서 매우 중요함
+
+- `usePreloadedQuery()`를 사용하면 쿼리 로딩을 최대한 빠른 시점에 시작할 수 있음
+
+```tsx
+export const RepoDetailsQuery = graphql`
+query RepoDetailsQuery($id: ID!) {
+  node(id: $id) {
+    ... on Repository {
+      id
+      ...RepoIssues_repository
+    }
+  }
+}
+`
+
+const RepoDetails = ({ $query }) => {
+  const data = usePreloadedQuery(RepoDetailsQuery, $query)
+
+  return data.node?.id && <RepoIssues $repository={data.node} />
+}
+```
+
+---
+
+# `useQueryLoader()`: 쿼리 로딩 컨트롤하기
+
+- `useQueryLoader()`를 사용하면 리액트 컴포넌트 내에서 원하는 타이밍에 유동적으로 쿼리를 불러올 수 있음
+
+- 해당 Hook이 반환하는 함수를 Variable과 함께 호출해주기만 하면 쿼리 로딩이 시작됨
+
+- 불러온 쿼리의 Reference를 해당 쿼리를 `usePreloadedQuery()`로 사용하는 컴포넌트에 넘겨주면 됨
+
+```tsx
+const RepoSummary = ({ $repository }) => {
+  const data = useFragment(/* ... */)
+  const [detailsQueryRef, loadDetailsQuery] = useQueryLoader(RepoDetailsQuery)
+  const [showDetails, setShowDetails] = useState(false)
+
+  return (
+    <div
+      onMouseEnter={() => detailsQueryRef || loadDetailsQuery({ id: data.id })}
+      onClick={() => setShowDetails(prev => !prev)}
+    >
+      {/* ... */}
+      <Suspense fallback={<Loader />}>
+        {showDetails && detailsQueryRef && <RepoDetails $query={detailsQueryRef} />}
+      </Suspense>
+    </div>
+  )
+}
+```
+
+---
+
+# 핸즈온: 저장소의 이슈 목록 보여주기
+
+- 저장소 목록에서 항목을 클릭했을 때, 해당 저장소의 이슈 목록을 보여주도록 만들어봅시다.
+
+- 사용자가 체감하는 로딩 시간을 최소화하기 위해, 저장소 항목에 커서를 올려놓은 시점에<br>
+  `useQueryLoader()`를 사용하여 미리 쿼리 로딩을 시작합시다.
+
+<img src="/assets/handson-5.webp" class="w-360px">
+
+---
 layout: end
 ---
