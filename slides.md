@@ -678,5 +678,87 @@ const RepoSummary = ({ $repository }) => {
 <img src="/assets/handson-5.webp" class="w-360px">
 
 ---
+
+# Connection 캐시를 업데이트하는 방법
+
+- Connection은 일반적인 필드들과는 달리 데이터를 가져오는 데에 이런저런 파라미터가 들어가고,<br>
+  이로 인해 손쉽게 Mutation에서 결과를 가져와서 캐시를 업데이트하는 방식으로 사용할 수 없음
+
+- 이 때문에 Relay에선 Connection 캐시 업데이트를 손쉽게 다룰 수 있도록 하기 위해<br>
+  `@appendEdge`, `@appendNode`, `@deleteEdge` 등의 디렉티브를 제공함
+
+- 해당 디렉티브들을 사용하기 위해서는 디렉티브를 적용할 Connection들의 ID를 가져와야 하는데,<br>
+  이를 위해서 `__id` 필드나 `ConnectionHandler.getConnectionID()`를 사용할 수 있음
+
+  - `__id` 필드는 Relay에서 임의로 추가하는 필드로,<br>
+    Connection 타입에서 가져오면 해당 Connection의 Relay 내부 ID를 반환함
+
+  - `ConnectionHandler.getConnectionID()`는 해당 Connection이 속한 Node의 `id`와<br>
+    `@connection` 디렉티브를 통해 지정한 Key를 파라미터로 넣으면 ID를 반환함
+
+---
+
+# Connection 캐시를 업데이트하는 방법
+
+```graphql
+fragment RepoIssues_repository on Repository
+@argumentDefinitions(
+  cursor: { type: "String" }
+  count: { type: "Int", defaultValue: 10 }
+)
+@refetchable(queryName: "RepoIssuesRefetchQuery") {
+  id
+  issues(first: $count, after: $cursor)
+    @connection(key: "RepoIssues_repository_issues") {
+    __id
+    edges { node { id } }
+  }
+}
+```
+
+- 위 예시에서 Connection의 ID를 가져오려면...
+
+  - `data.issues.__id` 필드 값 가져오기
+
+  - `ConnectionHandler.getConnectionID()`에<br>
+    `data.id`랑 `"RepoIssues_repository_issues"` 넣어서 가져오기
+
+---
+
+# Connection 캐시를 업데이트하는 방법
+
+- 새 항목이 추가될 때는 `@appendEdge`, `@prependEdge`, `@appendNode`, `@prependNode`를 사용
+
+  - 서버에서 Mutation의 결과로 새롭게 추가된 Edge를 반환했을 경우 `@appendEdge`나 `@prependEdge`를 사용
+
+  - Edge 말고 새롭게 추가된 Node를 반환했을 경우 `@appendNode`나 `@prependNode`를 사용
+
+```graphql
+mutation RepoIssues_CreateIssueMutation(
+  $input: CreateIssueInput!,
+  $connections: [ID!]!,
+) {
+  createIssue(input: $input) {
+    issue @prependNode(connections: $connections, edgeTypeName: "IssueEdge") {
+      id
+    }
+  }
+}
+```
+
+- 이렇게 하고 Mutation을 실행시킬 때 업데이트할 Connection들의 ID를 Variable로 같이 넣어주면 됨
+
+---
+
+# 핸즈온: 이슈 생성 모달 만들고 이슈 목록 갱신하기
+
+- 이슈 목록 최하단에 "새로운 이슈" 버튼을 만들고, 해당 버튼을 누르면 이슈 생성 모달이 열리게 해 보세요.
+
+- 이슈 생성 모달에서 제목과 내용을 채워넣어 이슈를 생성하면 이슈 목록에 해당 이슈가 추가될 수 있도록,<br>
+  `@prependNode` 디렉티브를 활용하여 캐시를 업데이트해 보세요.
+
+- Connection ID는 `ConnectionHandler.getConnectionID()`를 사용해서 가져오시는 게 편할 듯!
+
+---
 layout: end
 ---

@@ -8,6 +8,7 @@ import HandsOn2 from "./HandsOn2";
 import HandsOn3 from "./HandsOn3";
 import HandsOn4 from "./HandsOn4";
 import HandsOn5 from "./HandsOn5";
+import HandsOn6 from "./HandsOn6";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
   {
     path: "/handson-5",
     element: <HandsOn5 />,
+  },
+  {
+    path: "/handson-6",
+    element: <HandsOn6 />,
   },
 ]);
 
