@@ -760,5 +760,25 @@ mutation RepoIssues_CreateIssueMutation(
 - Connection ID는 `ConnectionHandler.getConnectionID()`를 사용해서 가져오시는 게 편할 듯!
 
 ---
+
+# 마무리
+
+- Relay의 핵심 기능들을 모두 떼셨습니다! 🎉
+
+- 추가적으로 더 공부해볼 만한 것들...
+
+  - `@required`로 Client-controlled nullability 사용하기
+
+  - Relay 캐시 수동으로 업데이트하기
+
+  - Fetch와 Cache Policy 설정하기
+
+  - SSR 서포트
+
+  - Subscription이나 `@live` 사용해서 데이터 실시간으로 업데이트하기
+
+  - `@defer`로 GraphQL 응답 단계적으로 받아서 렌더링하기
+
+---
 layout: end
 ---
