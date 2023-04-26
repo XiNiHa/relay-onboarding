@@ -5,7 +5,7 @@ module RepoIssues = {
       cursor: { type: "String" }
       count: { type: "Int", defaultValue: 10 }
     )
-    @refetchable(queryName: "RepoIssuesRefetchQuery") {
+    @refetchable(queryName: "HandsOn5_RepoIssuesRefetchQuery") {
       issues(first: $count, after: $cursor)
         @connection(key: "RepoIssues_repository_issues") {
         edges {

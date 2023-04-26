@@ -99,7 +99,7 @@ module RepoIssues = {
       cursor: { type: "String" }
       count: { type: "Int", defaultValue: 10 }
     )
-    @refetchable(queryName: "RepoIssuesRefetchQuery") {
+    @refetchable(queryName: "HandsOn6_RepoIssuesRefetchQuery") {
       id
       issues(first: $count, after: $cursor)
         @connection(key: "RepoIssues_repository_issues") {
