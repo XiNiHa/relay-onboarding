@@ -518,6 +518,53 @@ const FollowButton = ({ id }) => {
 
 ---
 
+# 인라인 Fragment
+
+- Mutation의 결과값으로 가져오는 데이터가 캐시를 정상적으로 업데이트하도록 하기 위해서는,<br>
+  해당 데이터를 사용하는 컴포넌트가 필요로 하는 데이터를 모두 선택해서 가져와줘야 함
+
+- 이걸 Fragment 없이 하면 실수하기가 너무 쉽고, 그래서 Mutation의 결과값에서<br>
+  가져올 필드를 선택할 때 Fragment를 사용하는 것이 권장됨
+
+- 근데 `useFragment()`는 거의 컴포넌트 단위로만 나뉘어서 사용하는 녀석이라,<br>
+  컴포넌트 단위와 Mutation의 단위가 다른 경우에는 사용이 힘듬
+
+- 이때 임의의 단위로 Fragment를 나누어 쓸 수 있도록 도와주는 게<br>
+  인라인 Fragment를 불러올 수 있도록 해 주는 `readInlineData()`
+
+- React Hook이 아니기 때문에 Rules of Hooks를 적용받지 않고,<br>
+  따라서 어디서든 자유롭게 사용할 수 있다.
+
+---
+
+# 인라인 Fragment
+
+```tsx
+const repoOwner =
+  data.owner.__typename === 'User'
+    ? readInlineData(
+        graphql`
+          fragment RepoSummary_owner_user on User @inline {
+            id
+            viewerCanFollow
+            viewerIsFollowing
+          }
+        `,
+        data.owner
+      )
+    : null
+```
+
+- `@inline`을 붙인 Fragment와, 해당 Fragment에 대한 Reference를 넣어서 사용
+
+- 위 예시처럼 조건문 내에서도 자유롭게 사용할 수 있기 때문에,<br>
+  "특정 조건을 만족할 때에만 적용할 Fragment"를 정의하는 데에 필수적이다
+
+- 위처럼 Fragment를 나눠서 사용하면, 추후에 Mutation에서 갱신된 데이터 불러올 때<br>
+  위에서 정의한 Fragment를 그대로 spread해주기만 하면 필요한 필드가 알아서 모두 선택된다
+
+---
+
 # `useMutation()`으로 Optimistic Response 날먹하기
 
 - `useMutation()`이 반환하는 dispatch 함수는 Variables 외에도 다양한 옵션을 받는다
@@ -559,6 +606,8 @@ const followUserWithId = (id: string) => {
 - Mutation이 일어나는 중에는 버튼 비활성화시키고, 로딩 표시 보여주기
 
 - Optimistic Response 활용해서 버튼 텍스트는 미리 업데이트시키기
+
+- 인라인 Fragment 사용해서 Mutation 결과값 받아오기
 
 ---
 

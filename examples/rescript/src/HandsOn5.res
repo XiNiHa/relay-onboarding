@@ -77,11 +77,17 @@ module RepoSummary = {
       stargazerCount
       owner {
         ... on User {
-          id
-          viewerCanFollow
-          viewerIsFollowing
+          ...HandsOn5_RepoSummary_owner_user
         }
       }
+    }
+  `)
+
+  module UserFragment = %relay(`
+    fragment HandsOn5_RepoSummary_owner_user on User @inline {
+      id
+      viewerCanFollow
+      viewerIsFollowing
     }
   `)
 
@@ -89,8 +95,7 @@ module RepoSummary = {
     mutation HandsOn5_FollowUserMutation($id: ID!) {
       followUser(input: { userId: $id }) {
         user {
-          id
-          viewerIsFollowing
+          ...HandsOn5_RepoSummary_owner_user
         }
       }
     }
@@ -100,8 +105,7 @@ module RepoSummary = {
     mutation HandsOn5_UnfollowUserMutation($id: ID!) {
       unfollowUser(input: { userId: $id }) {
         user {
-          id
-          viewerIsFollowing
+          ...HandsOn5_RepoSummary_owner_user
         }
       }
     }
@@ -110,6 +114,10 @@ module RepoSummary = {
   @react.component
   let make = (~repositoryRef) => {
     let repository = Fragment.use(repositoryRef)
+    let repoOwner = switch repository.owner {
+    | #User(user) => Some(UserFragment.readInline(user.fragmentRefs))
+    | _ => None
+    }
 
     let (followUser, isFollowUserInFlight) = FollowUser.use()
     let (unfollowUser, isUnfollowUserInFlight) = UnfollowUser.use()
@@ -119,40 +127,42 @@ module RepoSummary = {
     let isInFlight = isFollowUserInFlight || isUnfollowUserInFlight
 
     let followRepoOwner = () => {
-      switch repository.owner {
-      | #User(owner) =>
+      switch repoOwner {
+      | Some(owner) =>
         followUser(
           ~variables=FollowUser.makeVariables(~id=owner.id),
           ~optimisticResponse={
-            followUser: Some({
-              user: Some({
-                id: owner.id,
-                viewerIsFollowing: true,
-              }),
+            followUser: Obj.magic({
+              "user": {
+                "id": owner.id,
+                "viewerCanFollow": true,
+                "viewerIsFollowing": true,
+              },
             }),
           },
           (),
         )->ignore
-      | _ => ()
+      | None => ()
       }
     }
 
     let unfollowRepoOwner = () => {
-      switch repository.owner {
-      | #User(owner) =>
+      switch repoOwner {
+      | Some(owner) =>
         unfollowUser(
           ~variables=UnfollowUser.makeVariables(~id=owner.id),
           ~optimisticResponse={
-            unfollowUser: Some({
-              user: Some({
-                id: owner.id,
-                viewerIsFollowing: false,
-              }),
+            unfollowUser: Obj.magic({
+              "user": {
+                "id": owner.id,
+                "viewerCanFollow": true,
+                "viewerIsFollowing": false,
+              },
             }),
           },
           (),
         )->ignore
-      | _ => ()
+      | None => ()
       }
     }
 
@@ -166,8 +176,8 @@ module RepoSummary = {
       onClick={_ => setShowDetails(prev => !prev)}>
       {React.string(`${repository.nameWithOwner} `)}
       {React.int(repository.stargazerCount)}
-      {switch repository.owner {
-      | #User({viewerCanFollow: true} as owner) =>
+      {switch repoOwner {
+      | Some({viewerCanFollow: true} as owner) =>
         <button
           disabled={isInFlight}
           onClick={e => {

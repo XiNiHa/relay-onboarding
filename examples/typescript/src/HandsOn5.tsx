@@ -2,6 +2,7 @@ import { Suspense, startTransition, useEffect, useState } from "react";
 import {
   PreloadedQuery,
   graphql,
+  readInlineData,
   useFragment,
   useLazyLoadQuery,
   useMutation,
@@ -17,6 +18,7 @@ import { HandsOn5_FollowUserMutation } from "./__generated__/HandsOn5_FollowUser
 import { HandsOn5_UnfollowUserMutation } from "./__generated__/HandsOn5_UnfollowUserMutation.graphql";
 import { HandsOn5_RepoIssues_repository$key } from "./__generated__/HandsOn5_RepoIssues_repository.graphql";
 import { HandsOn5_RepoDetailsQuery } from "./__generated__/HandsOn5_RepoDetailsQuery.graphql";
+import { HandsOn5_RepoSummary_owner_user$key } from "./__generated__/HandsOn5_RepoSummary_owner_user.graphql";
 
 export default function HandsOn2() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,16 +117,28 @@ function RepoSummary({
         nameWithOwner
         stargazerCount
         owner {
+          __typename
           ... on User {
-            id
-            viewerCanFollow
-            viewerIsFollowing
+            ...HandsOn5_RepoSummary_owner_user
           }
         }
       }
     `,
     $repository
   );
+  const repoOwner =
+    data.owner.__typename === "User"
+      ? readInlineData<HandsOn5_RepoSummary_owner_user$key>(
+          graphql`
+            fragment HandsOn5_RepoSummary_owner_user on User @inline {
+              id
+              viewerCanFollow
+              viewerIsFollowing
+            }
+          `,
+          data.owner
+        )
+      : null;
   const [followUser, isFollowUserInFlight] =
     useMutation<HandsOn5_FollowUserMutation>(
       graphql`
@@ -159,11 +173,12 @@ function RepoSummary({
 
   const followRepoOwner = () => {
     return followUser({
-      variables: { id: data.owner.id! },
+      variables: { id: repoOwner!.id },
       optimisticResponse: {
         followUser: {
           user: {
-            id: data.owner.id,
+            id: repoOwner!.id,
+            viewerCanFollow: true,
             viewerIsFollowing: true,
           },
         },
@@ -172,11 +187,12 @@ function RepoSummary({
   };
   const unfollowRepoOwner = () => {
     return unfollowUser({
-      variables: { id: data.owner.id! },
+      variables: { id: repoOwner!.id },
       optimisticResponse: {
         unfollowUser: {
           user: {
-            id: data.owner.id,
+            id: repoOwner!.id,
+            viewerCanFollow: true,
             viewerIsFollowing: false,
           },
         },
@@ -190,19 +206,19 @@ function RepoSummary({
       onClick={() => setShowDetails((prev) => !prev)}
     >
       {data.nameWithOwner} {data.stargazerCount}
-      {data.owner.viewerCanFollow && (
+      {repoOwner?.viewerCanFollow && (
         <button
           disabled={isInFlight}
           onClick={e => {
             e.stopPropagation()
-            if (data.owner.viewerIsFollowing) {
+            if (repoOwner.viewerIsFollowing) {
               unfollowRepoOwner();
             } else {
               followRepoOwner();
             }
           }}
         >
-          {data.owner.viewerIsFollowing ? "Unfollow" : "Follow"}
+          {repoOwner.viewerIsFollowing ? "Unfollow" : "Follow"}
           {isInFlight && <Loader />}
         </button>
       )}

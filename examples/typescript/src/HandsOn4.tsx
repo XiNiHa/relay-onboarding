@@ -1,6 +1,7 @@
 import { Suspense, startTransition, useEffect, useState } from "react";
 import {
   graphql,
+  readInlineData,
   useFragment,
   useLazyLoadQuery,
   useMutation,
@@ -12,6 +13,7 @@ import { HandsOn4Query } from "./__generated__/HandsOn4Query.graphql";
 import { HandsOn4_RepoSummary_repository$key } from "./__generated__/HandsOn4_RepoSummary_repository.graphql";
 import { HandsOn4_FollowUserMutation } from "./__generated__/HandsOn4_FollowUserMutation.graphql";
 import { HandsOn4_UnfollowUserMutation } from "./__generated__/HandsOn4_UnfollowUserMutation.graphql";
+import { HandsOn4_RepoSummary_owner_user$key } from "./__generated__/HandsOn4_RepoSummary_owner_user.graphql";
 
 export default function HandsOn2() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -110,24 +112,35 @@ function RepoSummary({
         nameWithOwner
         stargazerCount
         owner {
+          __typename
           ... on User {
-            id
-            viewerCanFollow
-            viewerIsFollowing
+            ...HandsOn4_RepoSummary_owner_user
           }
         }
       }
     `,
     $repository
   );
+  const repoOwner =
+    data.owner.__typename === "User"
+      ? readInlineData<HandsOn4_RepoSummary_owner_user$key>(
+          graphql`
+            fragment HandsOn4_RepoSummary_owner_user on User @inline {
+              id
+              viewerCanFollow
+              viewerIsFollowing
+            }
+          `,
+          data.owner
+        )
+      : null;
   const [followUser, isFollowUserInFlight] =
     useMutation<HandsOn4_FollowUserMutation>(
       graphql`
         mutation HandsOn4_FollowUserMutation($id: ID!) {
           followUser(input: { userId: $id }) {
             user {
-              id
-              viewerIsFollowing
+              ...HandsOn4_RepoSummary_owner_user
             }
           }
         }
@@ -139,8 +152,7 @@ function RepoSummary({
         mutation HandsOn4_UnfollowUserMutation($id: ID!) {
           unfollowUser(input: { userId: $id }) {
             user {
-              id
-              viewerIsFollowing
+              ...HandsOn4_RepoSummary_owner_user
             }
           }
         }
@@ -151,11 +163,12 @@ function RepoSummary({
 
   const followRepoOwner = () => {
     return followUser({
-      variables: { id: data.owner.id!, },
+      variables: { id: repoOwner!.id },
       optimisticResponse: {
         followUser: {
           user: {
-            id: data.owner.id,
+            id: repoOwner!.id,
+            viewerCanFollow: true,
             viewerIsFollowing: true,
           },
         },
@@ -164,11 +177,12 @@ function RepoSummary({
   };
   const unfollowRepoOwner = () => {
     return unfollowUser({
-      variables: { id: data.owner.id! },
+      variables: { id: repoOwner!.id },
       optimisticResponse: {
         unfollowUser: {
           user: {
-            id: data.owner.id,
+            id: repoOwner!.id,
+            viewerCanFollow: true,
             viewerIsFollowing: false,
           },
         },
@@ -179,18 +193,18 @@ function RepoSummary({
   return (
     <div>
       {data.nameWithOwner} {data.stargazerCount}
-      {data.owner.viewerCanFollow && (
+      {repoOwner?.viewerCanFollow && (
         <button
           disabled={isInFlight}
           onClick={() => {
-            if (data.owner.viewerIsFollowing) {
+            if (repoOwner.viewerIsFollowing) {
               unfollowRepoOwner();
             } else {
               followRepoOwner();
             }
           }}
         >
-          {data.owner.viewerIsFollowing ? "Unfollow" : "Follow"}
+          {repoOwner.viewerIsFollowing ? "Unfollow" : "Follow"}
           {isInFlight && <Loader />}
         </button>
       )}
