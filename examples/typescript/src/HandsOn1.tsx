@@ -1,7 +1,7 @@
 import { startTransition, useState } from "react";
 import { graphql, useFragment, useLazyLoadQuery } from "react-relay";
-import { HandsOn1Query } from "./__generated__/HandsOn1Query.graphql";
 import { debounce } from "./utils/debounce";
+import { HandsOn1Query } from "./__generated__/HandsOn1Query.graphql";
 import { HandsOn1_RepoSummary_repository$key } from "./__generated__/HandsOn1_RepoSummary_repository.graphql";
 
 export default function HandsOn1() {
