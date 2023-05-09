@@ -207,7 +207,7 @@ module RepoSummary = {
   `)
 
   module FollowUser = %relay(`
-    mutation HandsOn6_FollowUserMutation($id: ID!) {
+    mutation HandsOn6_FollowUserMutation($id: ID!) @raw_response_type {
       followUser(input: { userId: $id }) {
         user {
           ...HandsOn6_RepoSummary_owner_user
@@ -217,7 +217,7 @@ module RepoSummary = {
   `)
 
   module UnfollowUser = %relay(`
-    mutation HandsOn6_UnfollowUserMutation($id: ID!) {
+    mutation HandsOn6_UnfollowUserMutation($id: ID!) @raw_response_type {
       unfollowUser(input: { userId: $id }) {
         user {
           ...HandsOn6_RepoSummary_owner_user
@@ -247,12 +247,12 @@ module RepoSummary = {
         followUser(
           ~variables=FollowUser.makeVariables(~id=owner.id),
           ~optimisticResponse={
-            followUser: Obj.magic({
-              "user": {
-                "id": owner.id,
-                "viewerCanFollow": true,
-                "viewerIsFollowing": true,
-              },
+            followUser: Some({
+              user: Some({
+                id: owner.id,
+                viewerCanFollow: true,
+                viewerIsFollowing: true,
+              }),
             }),
           },
           (),
@@ -267,12 +267,12 @@ module RepoSummary = {
         unfollowUser(
           ~variables=UnfollowUser.makeVariables(~id=owner.id),
           ~optimisticResponse={
-            unfollowUser: Obj.magic({
-              "user": {
-                "id": owner.id,
-                "viewerCanFollow": true,
-                "viewerIsFollowing": false,
-              },
+            unfollowUser: Some({
+              user: Some({
+                id: owner.id,
+                viewerCanFollow: true,
+                viewerIsFollowing: false,
+              }),
             }),
           },
           (),
