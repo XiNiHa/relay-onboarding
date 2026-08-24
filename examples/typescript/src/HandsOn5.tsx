@@ -1,6 +1,6 @@
 import { Suspense, startTransition, useEffect, useState } from "react";
+import type { PreloadedQuery } from "react-relay";
 import {
-  PreloadedQuery,
   graphql,
   readInlineData,
   useFragment,
@@ -11,16 +11,16 @@ import {
   useQueryLoader,
 } from "react-relay";
 import Loader from "./Loader";
-import { HandsOn5_RepoSearch_query$key } from "./__generated__/HandsOn5_RepoSearch_query.graphql";
-import { HandsOn5Query } from "./__generated__/HandsOn5Query.graphql";
-import { HandsOn5_RepoSummary_repository$key } from "./__generated__/HandsOn5_RepoSummary_repository.graphql";
-import { HandsOn5_FollowUserMutation } from "./__generated__/HandsOn5_FollowUserMutation.graphql";
-import { HandsOn5_UnfollowUserMutation } from "./__generated__/HandsOn5_UnfollowUserMutation.graphql";
-import { HandsOn5_RepoIssues_repository$key } from "./__generated__/HandsOn5_RepoIssues_repository.graphql";
-import { HandsOn5_RepoDetailsQuery } from "./__generated__/HandsOn5_RepoDetailsQuery.graphql";
-import { HandsOn5_RepoSummary_owner_user$key } from "./__generated__/HandsOn5_RepoSummary_owner_user.graphql";
+import type { HandsOn5_RepoSearch_query$key } from "./__generated__/HandsOn5_RepoSearch_query.graphql";
+import type { HandsOn5Query } from "./__generated__/HandsOn5Query.graphql";
+import type { HandsOn5_RepoSummary_repository$key } from "./__generated__/HandsOn5_RepoSummary_repository.graphql";
+import type { HandsOn5_FollowUserMutation } from "./__generated__/HandsOn5_FollowUserMutation.graphql";
+import type { HandsOn5_UnfollowUserMutation } from "./__generated__/HandsOn5_UnfollowUserMutation.graphql";
+import type { HandsOn5_RepoIssues_repository$key } from "./__generated__/HandsOn5_RepoIssues_repository.graphql";
+import type { HandsOn5_RepoDetailsQuery } from "./__generated__/HandsOn5_RepoDetailsQuery.graphql";
+import type { HandsOn5_RepoSummary_owner_user$key } from "./__generated__/HandsOn5_RepoSummary_owner_user.graphql";
 
-export default function HandsOn2() {
+export default function HandsOn5() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const data = useLazyLoadQuery<HandsOn5Query>(
@@ -29,7 +29,7 @@ export default function HandsOn2() {
         ...HandsOn5_RepoSearch_query
       }
     `,
-    {}
+    {},
   );
 
   return (
@@ -75,7 +75,7 @@ function RepoSearch({
         }
       }
     `,
-    $query
+    $query,
   );
 
   useEffect(() => {
@@ -89,7 +89,7 @@ function RepoSearch({
         (edge) =>
           edge?.node?.id && (
             <RepoSummary key={edge?.node?.id} $repository={edge?.node} />
-          )
+          ),
       )}
       <button
         disabled={isLoadingNext}
@@ -124,7 +124,7 @@ function RepoSummary({
         }
       }
     `,
-    $repository
+    $repository,
   );
   const repoOwner =
     data.owner.__typename === "User"
@@ -136,35 +136,31 @@ function RepoSummary({
               viewerIsFollowing
             }
           `,
-          data.owner
+          data.owner,
         )
       : null;
   const [followUser, isFollowUserInFlight] =
-    useMutation<HandsOn5_FollowUserMutation>(
-      graphql`
-        mutation HandsOn5_FollowUserMutation($id: ID!) {
-          followUser(input: { userId: $id }) {
-            user {
-              id
-              viewerIsFollowing
-            }
+    useMutation<HandsOn5_FollowUserMutation>(graphql`
+      mutation HandsOn5_FollowUserMutation($id: ID!) {
+        followUser(input: { userId: $id }) {
+          user {
+            id
+            viewerIsFollowing
           }
         }
-      `
-    );
+      }
+    `);
   const [unfollowUser, isUnfollowUserInFlight] =
-    useMutation<HandsOn5_UnfollowUserMutation>(
-      graphql`
-        mutation HandsOn5_UnfollowUserMutation($id: ID!) {
-          unfollowUser(input: { userId: $id }) {
-            user {
-              id
-              viewerIsFollowing
-            }
+    useMutation<HandsOn5_UnfollowUserMutation>(graphql`
+      mutation HandsOn5_UnfollowUserMutation($id: ID!) {
+        unfollowUser(input: { userId: $id }) {
+          user {
+            id
+            viewerIsFollowing
           }
         }
-      `
-    );
+      }
+    `);
   const [detailsQueryRef, loadDetailsQuery] =
     useQueryLoader<HandsOn5_RepoDetailsQuery>(RepoDetailsQuery);
 
@@ -209,8 +205,8 @@ function RepoSummary({
       {repoOwner?.viewerCanFollow && (
         <button
           disabled={isInFlight}
-          onClick={e => {
-            e.stopPropagation()
+          onClick={(e) => {
+            e.stopPropagation();
             if (repoOwner.viewerIsFollowing) {
               unfollowRepoOwner();
             } else {
@@ -279,7 +275,7 @@ const RepoIssues = ({ $repository }: RepoIssuesProps) => {
         }
       }
     `,
-    $repository
+    $repository,
   );
 
   return (
@@ -290,7 +286,7 @@ const RepoIssues = ({ $repository }: RepoIssuesProps) => {
             <li key={edge.node.id}>
               {edge.node.title} by {edge.node.author?.login}
             </li>
-          )
+          ),
       )}
     </ul>
   );

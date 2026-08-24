@@ -39,8 +39,7 @@ module RepoSearch = {
       let timeout = setTimeout(
         () =>
           refetch(
-            ~variables=Fragment.makeRefetchVariables(~owner=Some(owner), ~name=Some(name), ()),
-            (),
+            ~variables=Fragment.makeRefetchVariables(~owner=Some(owner), ~name=Some(name)),
           )->ignore,
         500,
       )
@@ -64,7 +63,7 @@ module Query = %relay(`
 let make = () => {
   let (owner, setOwner) = React.useState(_ => "")
   let (name, setName) = React.useState(_ => "")
-  let data = Query.use(~variables=(), ())
+  let data = Query.use(~variables=())
 
   <>
     <input onChange={e => setOwner(_ => ReactEvent.Form.target(e)["value"])} />

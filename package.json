@@ -1,14 +1,18 @@
 {
   "name": "relay-onboarding",
   "private": true,
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "build": "slidev build",
     "dev": "slidev --open",
     "export": "slidev export"
   },
-  "dependencies": {
-    "@slidev/cli": "^0.40.13",
-    "@slidev/theme-default": "*",
-    "@slidev/theme-seriph": "*"
+  "devDependencies": {
+    "@slidev/cli": "catalog:",
+    "@slidev/theme-default": "catalog:",
+    "@slidev/theme-seriph": "catalog:"
   }
 }

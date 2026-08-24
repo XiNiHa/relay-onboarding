@@ -48,10 +48,7 @@ module RepoSearch = {
     React.useEffect1(() => {
       let timeout = setTimeout(
         () =>
-          refetch(
-            ~variables=Fragment.makeRefetchVariables(~searchQuery=Some(searchQuery), ()),
-            (),
-          )->ignore,
+          refetch(~variables=Fragment.makeRefetchVariables(~searchQuery=Some(searchQuery)))->ignore,
         500,
       )
       Some(() => clearTimeout(timeout))
@@ -74,9 +71,10 @@ module RepoSearch = {
       <button
         disabled={isLoadingNext}
         onClick={_ =>
-          startTransition(.() => {
-            loadNext(~count=10, ())->ignore
-          })}>
+          startTransition(() => {
+            loadNext(~count=10)->ignore
+          })}
+      >
         {React.string(isLoadingNext ? "불러오는 중..." : "더 불러오기")}
       </button>
     </>
@@ -92,7 +90,7 @@ module Query = %relay(`
 @react.component
 let make = () => {
   let (searchQuery, setSearchQuery) = React.useState(_ => "")
-  let data = Query.use(~variables=(), ())
+  let data = Query.use(~variables=())
 
   <>
     <input onChange={e => setSearchQuery(_ => ReactEvent.Form.target(e)["value"])} />

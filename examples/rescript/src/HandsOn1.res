@@ -31,10 +31,10 @@ let make = () => {
 
   let (owner, setOwner) = React.useState(_ => "")
   let (name, setName) = React.useState(_ => "")
-  let data = Query.use(~variables=Query.makeVariables(~owner, ~name), ())
+  let data = Query.use(~variables={owner, name})
 
-  let setOwnerDebounced = Utils.debounce1(v => startTransition(.() => setOwner(v)), 500)
-  let setNameDebounced = Utils.debounce1(v => startTransition(.() => setName(v)), 500)
+  let setOwnerDebounced = Utils.debounce1(v => startTransition(() => setOwner(v)), 500)
+  let setNameDebounced = Utils.debounce1(v => startTransition(() => setName(v)), 500)
 
   <>
     <input

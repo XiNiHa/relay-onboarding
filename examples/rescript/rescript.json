@@ -1,0 +1,15 @@
+{
+  "name": "relay-onboarding-examples-rescript",
+  "sources": [{ "dir": "src", "subdirs": true }],
+  "package-specs": [{ "module": "esmodule", "in-source": true }],
+  "suffix": ".res.js",
+  "jsx": { "version": 4, "mode": "automatic" },
+  "ppx-flags": ["rescript-relay/ppx"],
+  "dependencies": [
+    "@rescript/react",
+    "@rescript/core",
+    "rescript-relay",
+    "rescript-webapi"
+  ],
+  "compiler-flags": ["-open RescriptCore"]
+}

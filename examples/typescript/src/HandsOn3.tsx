@@ -5,11 +5,11 @@ import {
   useLazyLoadQuery,
   usePaginationFragment,
 } from "react-relay";
-import { HandsOn3_RepoSearch_query$key } from "./__generated__/HandsOn3_RepoSearch_query.graphql";
-import { HandsOn3Query } from "./__generated__/HandsOn3Query.graphql";
-import { HandsOn3_RepoSummary_repository$key } from "./__generated__/HandsOn3_RepoSummary_repository.graphql";
+import type { HandsOn3_RepoSearch_query$key } from "./__generated__/HandsOn3_RepoSearch_query.graphql";
+import type { HandsOn3Query } from "./__generated__/HandsOn3Query.graphql";
+import type { HandsOn3_RepoSummary_repository$key } from "./__generated__/HandsOn3_RepoSummary_repository.graphql";
 
-export default function HandsOn2() {
+export default function HandsOn3() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const data = useLazyLoadQuery<HandsOn3Query>(
@@ -18,7 +18,7 @@ export default function HandsOn2() {
         ...HandsOn3_RepoSearch_query
       }
     `,
-    {}
+    {},
   );
 
   return (
@@ -64,7 +64,7 @@ function RepoSearch({
         }
       }
     `,
-    $query
+    $query,
   );
 
   useEffect(() => {
@@ -78,7 +78,7 @@ function RepoSearch({
         (edge) =>
           edge?.node?.id && (
             <RepoSummary key={edge?.node?.id} $repository={edge?.node} />
-          )
+          ),
       )}
       <button
         disabled={isLoadingNext}
@@ -106,7 +106,7 @@ function RepoSummary({
         stargazerCount
       }
     `,
-    $repository
+    $repository,
   );
 
   return (

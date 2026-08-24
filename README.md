@@ -8,9 +8,9 @@
 
   - [이곳에서](https://github.com/settings/tokens/new?description=Relay+Onboarding+Session&scopes=repo%2Cuser) 생성하실 수 있습니다.
 
-  - `githubCredentials.local.ts`를 만들고, `githubCredentials.sample.ts`의 내용을 참조하여 토큰을 적절히 삽입합니다.
+  - `.env.example`을 `.env`로 복사하고, `VITE_GITHUB_ACCESS_TOKEN`에 토큰을 입력합니다.
 
-  - 위 토큰은 각 sandbox 앱에서 불러와 사용하게 됩니다.
+  - 위 토큰은 각 sandbox 앱에서 불러와 사용하게 됩니다. 클라이언트에 노출되므로 로컬 실습에서만 사용합니다.
 
 - 언어 결정하기
 
@@ -39,7 +39,7 @@
     - Query 타입 활용하기
 
       ```tsx
-      import type { AppQuery } from "./__generated__/AppQuery.graphql.ts";
+      import type { AppQuery } from "./__generated__/AppQuery.graphql";
 
       const App = () => {
         const data = useLazyLoadQuery<AppQuery>(
@@ -50,20 +50,20 @@
               }
             }
           `,
-          {}
+          {},
         );
 
-        return <>{data.viewer.login}</> // 타입이 잘 잡힘
+        return <>{data.viewer.login}</>; // 타입이 잘 잡힘
       };
       ```
 
     - Fragment 타입 활용하기
 
       ```tsx
-      import type { RepoSummary_repository$key } from "./__generated__/RepoSummary_repository.graphql.ts";
+      import type { RepoSummary_repository$key } from "./__generated__/RepoSummary_repository.graphql";
 
       interface Props {
-        $repository: RepoSummary_repository$key
+        $repository: RepoSummary_repository$key;
       }
 
       const RepoSummary = ({ $repository }: Props) => {
@@ -74,9 +74,9 @@
               stargazerCount
             }
           `,
-          $repository // 이 값의 타입 가지고 Relay가 자동으로 반환값 타입을 잡아줌
-        )
+          $repository, // 이 값의 타입 가지고 Relay가 자동으로 반환값 타입을 잡아줌
+        );
 
-        return <>{repository.nameWithOwner}</> // 타입이 잘 잡힘
-      }
+        return <>{repository.nameWithOwner}</>; // 타입이 잘 잡힘
+      };
       ```

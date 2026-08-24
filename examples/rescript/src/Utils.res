@@ -1,11 +1,11 @@
 let debounce1 = (fn, delay) => {
-  let timeout = ref(None);
+  let timeout = ref(None)
 
-  (arg) => {
+  arg => {
     switch timeout.contents {
     | Some(timeout) => clearTimeout(timeout)
     | None => ()
     }
     timeout := Some(setTimeout(() => fn(arg), delay))
-  };
-};
+  }
+}

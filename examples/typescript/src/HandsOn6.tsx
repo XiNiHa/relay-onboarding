@@ -1,7 +1,8 @@
 import { Suspense, startTransition, useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import type { PreloadedQuery } from "react-relay";
 import {
   ConnectionHandler,
-  PreloadedQuery,
   graphql,
   readInlineData,
   useFragment,
@@ -12,18 +13,18 @@ import {
   useQueryLoader,
 } from "react-relay";
 import Loader from "./Loader";
-import { HandsOn6_RepoSearch_query$key } from "./__generated__/HandsOn6_RepoSearch_query.graphql";
-import { HandsOn6Query } from "./__generated__/HandsOn6Query.graphql";
-import { HandsOn6_RepoSummary_repository$key } from "./__generated__/HandsOn6_RepoSummary_repository.graphql";
-import { HandsOn6_FollowUserMutation } from "./__generated__/HandsOn6_FollowUserMutation.graphql";
-import { HandsOn6_UnfollowUserMutation } from "./__generated__/HandsOn6_UnfollowUserMutation.graphql";
-import { HandsOn6_RepoIssues_repository$key } from "./__generated__/HandsOn6_RepoIssues_repository.graphql";
-import { HandsOn6_RepoDetailsQuery } from "./__generated__/HandsOn6_RepoDetailsQuery.graphql";
+import type { HandsOn6_RepoSearch_query$key } from "./__generated__/HandsOn6_RepoSearch_query.graphql";
+import type { HandsOn6Query } from "./__generated__/HandsOn6Query.graphql";
+import type { HandsOn6_RepoSummary_repository$key } from "./__generated__/HandsOn6_RepoSummary_repository.graphql";
+import type { HandsOn6_FollowUserMutation } from "./__generated__/HandsOn6_FollowUserMutation.graphql";
+import type { HandsOn6_UnfollowUserMutation } from "./__generated__/HandsOn6_UnfollowUserMutation.graphql";
+import type { HandsOn6_RepoIssues_repository$key } from "./__generated__/HandsOn6_RepoIssues_repository.graphql";
+import type { HandsOn6_RepoDetailsQuery } from "./__generated__/HandsOn6_RepoDetailsQuery.graphql";
 import { createPortal } from "react-dom";
-import { HandsOn6_RepoIssues_issue$key } from "./__generated__/HandsOn6_RepoIssues_issue.graphql";
-import { HandsOn6_CreateIssueMutation } from "./__generated__/HandsOn6_CreateIssueMutation.graphql";
+import type { HandsOn6_RepoIssues_issue$key } from "./__generated__/HandsOn6_RepoIssues_issue.graphql";
+import type { HandsOn6_CreateIssueMutation } from "./__generated__/HandsOn6_CreateIssueMutation.graphql";
 
-export default function HandsOn2() {
+export default function HandsOn6() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const data = useLazyLoadQuery<HandsOn6Query>(
@@ -32,7 +33,7 @@ export default function HandsOn2() {
         ...HandsOn6_RepoSearch_query
       }
     `,
-    {}
+    {},
   );
 
   return (
@@ -78,7 +79,7 @@ function RepoSearch({
         }
       }
     `,
-    $query
+    $query,
   );
 
   useEffect(() => {
@@ -92,7 +93,7 @@ function RepoSearch({
         (edge) =>
           edge?.node?.id && (
             <RepoSummary key={edge?.node?.id} $repository={edge?.node} />
-          )
+          ),
       )}
       <button
         disabled={isLoadingNext}
@@ -128,34 +129,30 @@ function RepoSummary({
         }
       }
     `,
-    $repository
+    $repository,
   );
   const [followUser, isFollowUserInFlight] =
-    useMutation<HandsOn6_FollowUserMutation>(
-      graphql`
-        mutation HandsOn6_FollowUserMutation($id: ID!) {
-          followUser(input: { userId: $id }) {
-            user {
-              id
-              viewerIsFollowing
-            }
+    useMutation<HandsOn6_FollowUserMutation>(graphql`
+      mutation HandsOn6_FollowUserMutation($id: ID!) {
+        followUser(input: { userId: $id }) {
+          user {
+            id
+            viewerIsFollowing
           }
         }
-      `
-    );
+      }
+    `);
   const [unfollowUser, isUnfollowUserInFlight] =
-    useMutation<HandsOn6_UnfollowUserMutation>(
-      graphql`
-        mutation HandsOn6_UnfollowUserMutation($id: ID!) {
-          unfollowUser(input: { userId: $id }) {
-            user {
-              id
-              viewerIsFollowing
-            }
+    useMutation<HandsOn6_UnfollowUserMutation>(graphql`
+      mutation HandsOn6_UnfollowUserMutation($id: ID!) {
+        unfollowUser(input: { userId: $id }) {
+          user {
+            id
+            viewerIsFollowing
           }
         }
-      `
-    );
+      }
+    `);
   const [detailsQueryRef, loadDetailsQuery] =
     useQueryLoader<HandsOn6_RepoDetailsQuery>(RepoDetailsQuery);
 
@@ -264,7 +261,7 @@ const RepoIssues = ({ $repository }: RepoIssuesProps) => {
         }
       }
     `,
-    $repository
+    $repository,
   );
 
   const [showModal, setShowModal] = useState(false);
@@ -285,7 +282,7 @@ const RepoIssues = ({ $repository }: RepoIssuesProps) => {
                 }
               }
             `,
-            edge.node
+            edge.node,
           );
 
           return (
@@ -320,29 +317,24 @@ interface CreateIssueModalProps {
 
 const CreateIssueModal = ({ repositoryId, onClose }: CreateIssueModalProps) => {
   const [createIssue, isCreateIssueInFlight] =
-    useMutation<HandsOn6_CreateIssueMutation>(
-      graphql`
-        mutation HandsOn6_CreateIssueMutation(
-          $input: CreateIssueInput!
-          $connections: [ID!]!
-        ) {
-          createIssue(input: $input) {
-            issue
-              @prependNode(
-                connections: $connections
-                edgeTypeName: "IssueEdge"
-              ) {
-              ...HandsOn6_RepoIssues_issue
-            }
+    useMutation<HandsOn6_CreateIssueMutation>(graphql`
+      mutation HandsOn6_CreateIssueMutation(
+        $input: CreateIssueInput!
+        $connections: [ID!]!
+      ) {
+        createIssue(input: $input) {
+          issue
+            @prependNode(connections: $connections, edgeTypeName: "IssueEdge") {
+            ...HandsOn6_RepoIssues_issue
           }
         }
-      `
-    );
+      }
+    `);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target as HTMLFormElement);
+    const formData = new FormData(e.currentTarget);
     const title = formData.get("title") as string;
     const body = formData.get("body") as string;
 
@@ -352,7 +344,7 @@ const CreateIssueModal = ({ repositoryId, onClose }: CreateIssueModalProps) => {
         connections: [
           ConnectionHandler.getConnectionID(
             repositoryId,
-            "RepoIssues_repository_issues"
+            "RepoIssues_repository_issues",
           ),
         ],
       },
@@ -404,6 +396,6 @@ const CreateIssueModal = ({ repositoryId, onClose }: CreateIssueModalProps) => {
         <button disabled={isCreateIssueInFlight}>확인</button>
       </form>
     </div>,
-    document.body
+    document.body,
   );
 };

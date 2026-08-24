@@ -5,9 +5,9 @@ import {
   useLazyLoadQuery,
   useRefetchableFragment,
 } from "react-relay";
-import { HandsOn2Query } from "./__generated__/HandsOn2Query.graphql";
-import { HandsOn2_RepoSummary_repository$key } from "./__generated__/HandsOn2_RepoSummary_repository.graphql";
-import { HandsOn2_RepoSearch_query$key } from "./__generated__/HandsOn2_RepoSearch_query.graphql";
+import type { HandsOn2Query } from "./__generated__/HandsOn2Query.graphql";
+import type { HandsOn2_RepoSummary_repository$key } from "./__generated__/HandsOn2_RepoSummary_repository.graphql";
+import type { HandsOn2_RepoSearch_query$key } from "./__generated__/HandsOn2_RepoSearch_query.graphql";
 
 export default function HandsOn2() {
   const [owner, setOwner] = useState("");
@@ -19,7 +19,7 @@ export default function HandsOn2() {
         ...HandsOn2_RepoSearch_query
       }
     `,
-    {}
+    {},
   );
 
   return (
@@ -55,7 +55,7 @@ function RepoSearch({
         }
       }
     `,
-    $query
+    $query,
   );
 
   useEffect(() => {
@@ -82,7 +82,7 @@ function RepoSummary({
         stargazerCount
       }
     `,
-    $repository
+    $repository,
   );
 
   return (
