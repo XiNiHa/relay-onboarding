@@ -1,8 +1,8 @@
 import { startTransition, useState } from "react";
 import { graphql, useFragment, useLazyLoadQuery } from "react-relay";
 import { debounce } from "./utils/debounce";
-import { HandsOn1Query } from "./__generated__/HandsOn1Query.graphql";
-import { HandsOn1_RepoSummary_repository$key } from "./__generated__/HandsOn1_RepoSummary_repository.graphql";
+import type { HandsOn1Query } from "./__generated__/HandsOn1Query.graphql";
+import type { HandsOn1_RepoSummary_repository$key } from "./__generated__/HandsOn1_RepoSummary_repository.graphql";
 
 export default function HandsOn1() {
   const [owner, setOwner] = useState("");
@@ -10,11 +10,11 @@ export default function HandsOn1() {
 
   const setOwnerDebounced = debounce(
     (v: string) => startTransition(() => setOwner(v)),
-    500
+    500,
   );
   const setNameDebounced = debounce(
     (v: string) => startTransition(() => setName(v)),
-    500
+    500,
   );
 
   const data = useLazyLoadQuery<HandsOn1Query>(
@@ -25,7 +25,7 @@ export default function HandsOn1() {
         }
       }
     `,
-    { owner, name }
+    { owner, name },
   );
 
   return (
@@ -49,7 +49,7 @@ function RepoSummary({
         stargazerCount
       }
     `,
-    $repository
+    $repository,
   );
 
   return (

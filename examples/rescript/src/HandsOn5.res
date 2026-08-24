@@ -32,7 +32,7 @@ module RepoIssues = {
         ->Array.map(edge =>
           switch edge {
           | Some({node: Some(node)}) => {
-              let author = node.author->Option.mapWithDefault("unknown", author => author.login)
+              let author = node.author->Option.mapOr("unknown", author => author.login)
 
               <li key={node.id}> {React.string(`${node.title} by ${author}`)} </li>
             }
@@ -60,11 +60,12 @@ module RepoDetails = {
 
   @react.component
   let make = (~queryRef) => {
-    let data = Query.usePreloaded(~queryRef, ())
+    let data = Query.usePreloaded(~queryRef)
 
     switch data.node {
-    | Some(node) => <RepoIssues repositoryRef={node.fragmentRefs} />
+    | Some(Repository(node)) => <RepoIssues repositoryRef={node.fragmentRefs} />
     | None => React.null
+    | Some(UnselectedUnionMember(_)) => React.null
     }
   }
 }
@@ -115,7 +116,7 @@ module RepoSummary = {
   let make = (~repositoryRef) => {
     let repository = Fragment.use(repositoryRef)
     let repoOwner = switch repository.owner {
-    | #User(user) => Some(UserFragment.readInline(user.fragmentRefs))
+    | User(user) => Some(UserFragment.readInline(user.fragmentRefs))
     | _ => None
     }
 
@@ -130,7 +131,7 @@ module RepoSummary = {
       switch repoOwner {
       | Some(owner) =>
         followUser(
-          ~variables=FollowUser.makeVariables(~id=owner.id),
+          ~variables={id: owner.id},
           ~optimisticResponse={
             followUser: Some({
               user: Some({
@@ -140,7 +141,6 @@ module RepoSummary = {
               }),
             }),
           },
-          (),
         )->ignore
       | None => ()
       }
@@ -150,7 +150,7 @@ module RepoSummary = {
       switch repoOwner {
       | Some(owner) =>
         unfollowUser(
-          ~variables=UnfollowUser.makeVariables(~id=owner.id),
+          ~variables={id: owner.id},
           ~optimisticResponse={
             unfollowUser: Some({
               user: Some({
@@ -160,7 +160,6 @@ module RepoSummary = {
               }),
             }),
           },
-          (),
         )->ignore
       | None => ()
       }
@@ -169,11 +168,11 @@ module RepoSummary = {
     <div
       onMouseEnter={_ =>
         switch detailsQueryRef {
-        | None =>
-          loadDetailsQuery(~variables=RepoDetails.Query.makeVariables(~id=repository.id), ())
+        | None => loadDetailsQuery(~variables={id: repository.id})
         | _ => ()
         }}
-      onClick={_ => setShowDetails(prev => !prev)}>
+      onClick={_ => setShowDetails(prev => !prev)}
+    >
       {React.string(`${repository.nameWithOwner} `)}
       {React.int(repository.stargazerCount)}
       {switch repoOwner {
@@ -187,7 +186,8 @@ module RepoSummary = {
             } else {
               followRepoOwner()
             }
-          }}>
+          }}
+        >
           {React.string(owner.viewerIsFollowing ? "Unfollow" : "Follow")}
           {isInFlight ? <Loader /> : React.null}
         </button>
@@ -234,10 +234,7 @@ module RepoSearch = {
     React.useEffect1(() => {
       let timeout = setTimeout(
         () =>
-          refetch(
-            ~variables=Fragment.makeRefetchVariables(~searchQuery=Some(searchQuery), ()),
-            (),
-          )->ignore,
+          refetch(~variables=Fragment.makeRefetchVariables(~searchQuery=Some(searchQuery)))->ignore,
         500,
       )
       Some(() => clearTimeout(timeout))
@@ -260,9 +257,10 @@ module RepoSearch = {
       <button
         disabled={isLoadingNext}
         onClick={_ =>
-          startTransition(.() => {
-            loadNext(~count=10, ())->ignore
-          })}>
+          startTransition(() => {
+            loadNext(~count=10)->ignore
+          })}
+      >
         {React.string(isLoadingNext ? "불러오는 중..." : "더 불러오기")}
       </button>
     </>
@@ -278,7 +276,7 @@ module Query = %relay(`
 @react.component
 let make = () => {
   let (searchQuery, setSearchQuery) = React.useState(_ => "")
-  let data = Query.use(~variables=(), ())
+  let data = Query.use(~variables=())
 
   <>
     <input onChange={e => setSearchQuery(_ => ReactEvent.Form.target(e)["value"])} />

@@ -28,16 +28,15 @@ module CreateIssueModal = {
       switch (title, body) {
       | (#String(title), #String(body)) =>
         createIssue(
-          ~variables=CreateIssue.makeVariables(
-            ~input=CreateIssue.make_createIssueInput(~repositoryId, ~title, ~body, ()),
-            ~connections=[
+          ~variables={
+            input: {repositoryId, title, body},
+            connections: [
               repositoryId
               ->RescriptRelay.makeDataId
               ->RescriptRelay.ConnectionHandler.getConnectionID("RepoIssues_repository_issues", ()),
             ],
-          ),
+          },
           ~onCompleted=(_, _) => onClose(),
-          (),
         )->ignore
       | _ => ()
       }
@@ -56,7 +55,8 @@ module CreateIssueModal = {
           justifyContent: "center",
           alignItems: "center",
         }}
-        onClick={_ => onClose()}>
+        onClick={_ => onClose()}
+      >
         <form
           style={{
             width: "400px",
@@ -71,7 +71,8 @@ module CreateIssueModal = {
             gap: "10px",
           }}
           onSubmit={onSubmit}
-          onClick={JsxEvent.Mouse.stopPropagation}>
+          onClick={JsxEvent.Mouse.stopPropagation}
+        >
           <div style={{width: "100%"}}>
             <label style={{display: "flex", gap: "10px"}}>
               {React.string("제목:")}
@@ -136,7 +137,7 @@ module RepoIssues = {
             switch edge {
             | Some({node: Some(node)}) => {
                 let issue = IssueFragment.readInline(node.fragmentRefs)
-                let author = issue.author->Option.mapWithDefault("unknown", author => author.login)
+                let author = issue.author->Option.mapOr("unknown", author => author.login)
 
                 <li key={issue.id}> {React.string(`${issue.title} by ${author}`)} </li>
               }
@@ -151,7 +152,8 @@ module RepoIssues = {
         onClick={e => {
           JsxEvent.Mouse.stopPropagation(e)
           setShowModal(_ => true)
-        }}>
+        }}
+      >
         {React.string("새로운 이슈")}
       </button>
       {showModal
@@ -175,11 +177,11 @@ module RepoDetails = {
 
   @react.component
   let make = (~queryRef) => {
-    let data = Query.usePreloaded(~queryRef, ())
+    let data = Query.usePreloaded(~queryRef)
 
     switch data.node {
-    | Some(node) => <RepoIssues repositoryRef={node.fragmentRefs} />
-    | None => React.null
+    | Some(Repository(node)) => <RepoIssues repositoryRef={node.fragmentRefs} />
+    | Some(UnselectedUnionMember(_)) | None => React.null
     }
   }
 }
@@ -230,7 +232,7 @@ module RepoSummary = {
   let make = (~repositoryRef) => {
     let repository = Fragment.use(repositoryRef)
     let repoOwner = switch repository.owner {
-    | #User(user) => Some(UserFragment.readInline(user.fragmentRefs))
+    | User(user) => Some(UserFragment.readInline(user.fragmentRefs))
     | _ => None
     }
 
@@ -245,7 +247,7 @@ module RepoSummary = {
       switch repoOwner {
       | Some(owner) =>
         followUser(
-          ~variables=FollowUser.makeVariables(~id=owner.id),
+          ~variables={id: owner.id},
           ~optimisticResponse={
             followUser: Some({
               user: Some({
@@ -255,7 +257,6 @@ module RepoSummary = {
               }),
             }),
           },
-          (),
         )->ignore
       | None => ()
       }
@@ -265,7 +266,7 @@ module RepoSummary = {
       switch repoOwner {
       | Some(owner) =>
         unfollowUser(
-          ~variables=UnfollowUser.makeVariables(~id=owner.id),
+          ~variables={id: owner.id},
           ~optimisticResponse={
             unfollowUser: Some({
               user: Some({
@@ -275,7 +276,6 @@ module RepoSummary = {
               }),
             }),
           },
-          (),
         )->ignore
       | None => ()
       }
@@ -284,11 +284,11 @@ module RepoSummary = {
     <div
       onMouseEnter={_ =>
         switch detailsQueryRef {
-        | None =>
-          loadDetailsQuery(~variables=RepoDetails.Query.makeVariables(~id=repository.id), ())
+        | None => loadDetailsQuery(~variables={id: repository.id})
         | _ => ()
         }}
-      onClick={_ => setShowDetails(prev => !prev)}>
+      onClick={_ => setShowDetails(prev => !prev)}
+    >
       {React.string(`${repository.nameWithOwner} `)}
       {React.int(repository.stargazerCount)}
       {switch repoOwner {
@@ -302,7 +302,8 @@ module RepoSummary = {
             } else {
               followRepoOwner()
             }
-          }}>
+          }}
+        >
           {React.string(owner.viewerIsFollowing ? "Unfollow" : "Follow")}
           {isInFlight ? <Loader /> : React.null}
         </button>
@@ -349,10 +350,7 @@ module RepoSearch = {
     React.useEffect1(() => {
       let timeout = setTimeout(
         () =>
-          refetch(
-            ~variables=Fragment.makeRefetchVariables(~searchQuery=Some(searchQuery), ()),
-            (),
-          )->ignore,
+          refetch(~variables=Fragment.makeRefetchVariables(~searchQuery=Some(searchQuery)))->ignore,
         500,
       )
       Some(() => clearTimeout(timeout))
@@ -375,9 +373,10 @@ module RepoSearch = {
       <button
         disabled={isLoadingNext}
         onClick={_ =>
-          startTransition(.() => {
-            loadNext(~count=10, ())->ignore
-          })}>
+          startTransition(() => {
+            loadNext(~count=10)->ignore
+          })}
+      >
         {React.string(isLoadingNext ? "불러오는 중..." : "더 불러오기")}
       </button>
     </>
@@ -393,7 +392,7 @@ module Query = %relay(`
 @react.component
 let make = () => {
   let (searchQuery, setSearchQuery) = React.useState(_ => "")
-  let data = Query.use(~variables=(), ())
+  let data = Query.use(~variables=())
 
   <>
     <input onChange={e => setSearchQuery(_ => ReactEvent.Form.target(e)["value"])} />

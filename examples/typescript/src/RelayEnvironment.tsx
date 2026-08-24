@@ -1,25 +1,37 @@
-import {
-  Store,
-  RecordSource,
-  Environment,
-  Network,
-  Observable,
+import { Environment, Network, RecordSource, Store } from "relay-runtime";
+import type {
+  FetchFunction,
+  GraphQLResponse,
+  IEnvironment,
 } from "relay-runtime";
-import type { FetchFunction, IEnvironment } from "relay-runtime";
-import { githubAccessToken } from "../../../githubCredentials.local";
 
-const fetchFn: FetchFunction = (params, variables) => {
-  const response = fetch("https://api.github.com/graphql", {
+const fetchFn: FetchFunction = async (params, variables) => {
+  if (!import.meta.env.VITE_GITHUB_ACCESS_TOKEN) {
+    throw new Error(
+      "VITE_GITHUB_ACCESS_TOKEN is missing. Copy .env.example to .env and add a GitHub access token.",
+    );
+  }
+
+  if (!params.text) {
+    throw new Error(`Relay operation ${params.name} has no query text.`);
+  }
+
+  const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Github-Next-Global-ID": "1",
-      Authorization: `Bearer ${githubAccessToken}`,
+      Authorization: `Bearer ${import.meta.env.VITE_GITHUB_ACCESS_TOKEN}`,
     },
     body: JSON.stringify({ query: params.text, variables }),
   });
 
-  return Observable.from(response.then((data) => data.json()));
+  const payload = (await response.json()) as GraphQLResponse;
+
+  if (!response.ok) {
+    throw new Error(`GitHub GraphQL request failed (${response.status}).`);
+  }
+
+  return payload;
 };
 
 function createEnvironment(): IEnvironment {

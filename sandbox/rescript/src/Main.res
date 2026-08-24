@@ -7,11 +7,11 @@ switch rootEl {
   ->ReactDOM.Client.createRoot
   ->ReactDOM.Client.Root.render(
     <React.StrictMode>
-      <RescriptRelay.Context.Provider environment={RelayEnvironment.environment}>
+      <RescriptRelayReact.Context.Provider environment={RelayEnvironment.environment}>
         <React.Suspense>
           <App />
         </React.Suspense>
-      </RescriptRelay.Context.Provider>
+      </RescriptRelayReact.Context.Provider>
     </React.StrictMode>,
   )
 | None => Console.log("No root element found")

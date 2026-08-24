@@ -1,48 +1,22 @@
-import React, { Suspense } from "react";
-import ReactDOM from "react-dom/client";
+import { lazy, StrictMode, Suspense } from "react";
+import { createRoot } from "react-dom/client";
 import { RelayEnvironmentProvider } from "react-relay";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { environment } from "./RelayEnvironment";
-import HandsOn1 from "./HandsOn1";
-import HandsOn2 from "./HandsOn2";
-import HandsOn3 from "./HandsOn3";
-import HandsOn4 from "./HandsOn4";
-import HandsOn5 from "./HandsOn5";
-import HandsOn6 from "./HandsOn6";
 
-const router = createBrowserRouter([
-  {
-    path: "/handson-1",
-    element: <HandsOn1 />,
-  },
-  {
-    path: "/handson-2",
-    element: <HandsOn2 />,
-  },
-  {
-    path: "/handson-3",
-    element: <HandsOn3 />,
-  },
-  {
-    path: "/handson-4",
-    element: <HandsOn4 />,
-  },
-  {
-    path: "/handson-5",
-    element: <HandsOn5 />,
-  },
-  {
-    path: "/handson-6",
-    element: <HandsOn6 />,
-  },
-]);
+const AppRouter = lazy(() => import("./Router"));
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element #root was not found.");
+}
+
+createRoot(rootElement).render(
+  <StrictMode>
     <RelayEnvironmentProvider environment={environment}>
-      <Suspense>
-        <RouterProvider router={router} />
+      <Suspense fallback={<div>Loading…</div>}>
+        <AppRouter />
       </Suspense>
     </RelayEnvironmentProvider>
-  </React.StrictMode>
+  </StrictMode>,
 );

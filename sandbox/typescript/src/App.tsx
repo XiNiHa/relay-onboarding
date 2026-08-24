@@ -1,5 +1,5 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { AppQuery } from "./__generated__/AppQuery.graphql";
+import type { AppQuery } from "./__generated__/AppQuery.graphql";
 
 export default function App() {
   const data = useLazyLoadQuery<AppQuery>(
@@ -10,7 +10,7 @@ export default function App() {
         }
       }
     `,
-    {}
+    {},
   );
 
   return <>{data.viewer.login}</>;

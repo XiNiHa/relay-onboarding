@@ -8,7 +8,7 @@ module Query = %relay(`
 
 @react.component
 let make = () => {
-  let data = Query.use(~variables=(), ())
+  let data = Query.use(~variables=())
 
-  <> {data.viewer.login} </>
+  <> {React.string(data.viewer.login)} </>
 }

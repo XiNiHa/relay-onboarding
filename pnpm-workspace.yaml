@@ -1,4 +1,36 @@
 packages:
-  - "./"
-  - "./sandbox/*"
-  - "./examples/*"
+  - "."
+  - "sandbox/*"
+  - "examples/*"
+
+allowBuilds:
+  rescript-relay: true
+
+catalog:
+  "@rescript/core": 1.6.1
+  "@rescript/react": 0.15.0
+  "@rescript/runtime": 12.3.0
+  "@slidev/cli": 52.19.1
+  "@slidev/theme-default": 0.25.0
+  "@slidev/theme-seriph": 0.25.0
+  "@types/node": 26.2.0
+  "@types/react": 19.2.18
+  "@types/react-dom": 19.2.4
+  "@types/react-relay": 18.2.1
+  "@types/relay-runtime": 20.1.1
+  "@vitejs/plugin-react": 6.1.0
+  babel-plugin-relay: 20.1.1
+  concurrently: 10.0.5
+  react: 19.2.8
+  react-dom: 19.2.8
+  react-relay: 20.1.1
+  react-router-dom: 7.18.2
+  relay-compiler: 20.1.1
+  relay-runtime: 20.1.1
+  relay-test-utils: 20.1.1
+  rescript: 12.3.0
+  rescript-relay: 4.5.1
+  rescript-webapi: 0.10.0
+  typescript: 7.0.2
+  vite: 8.2.2
+  vite-plugin-relay: 2.1.0

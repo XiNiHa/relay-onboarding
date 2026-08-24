@@ -8,14 +8,14 @@ import {
   usePaginationFragment,
 } from "react-relay";
 import Loader from "./Loader";
-import { HandsOn4_RepoSearch_query$key } from "./__generated__/HandsOn4_RepoSearch_query.graphql";
-import { HandsOn4Query } from "./__generated__/HandsOn4Query.graphql";
-import { HandsOn4_RepoSummary_repository$key } from "./__generated__/HandsOn4_RepoSummary_repository.graphql";
-import { HandsOn4_FollowUserMutation } from "./__generated__/HandsOn4_FollowUserMutation.graphql";
-import { HandsOn4_UnfollowUserMutation } from "./__generated__/HandsOn4_UnfollowUserMutation.graphql";
-import { HandsOn4_RepoSummary_owner_user$key } from "./__generated__/HandsOn4_RepoSummary_owner_user.graphql";
+import type { HandsOn4_RepoSearch_query$key } from "./__generated__/HandsOn4_RepoSearch_query.graphql";
+import type { HandsOn4Query } from "./__generated__/HandsOn4Query.graphql";
+import type { HandsOn4_RepoSummary_repository$key } from "./__generated__/HandsOn4_RepoSummary_repository.graphql";
+import type { HandsOn4_FollowUserMutation } from "./__generated__/HandsOn4_FollowUserMutation.graphql";
+import type { HandsOn4_UnfollowUserMutation } from "./__generated__/HandsOn4_UnfollowUserMutation.graphql";
+import type { HandsOn4_RepoSummary_owner_user$key } from "./__generated__/HandsOn4_RepoSummary_owner_user.graphql";
 
-export default function HandsOn2() {
+export default function HandsOn4() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const data = useLazyLoadQuery<HandsOn4Query>(
@@ -24,7 +24,7 @@ export default function HandsOn2() {
         ...HandsOn4_RepoSearch_query
       }
     `,
-    {}
+    {},
   );
 
   return (
@@ -70,7 +70,7 @@ function RepoSearch({
         }
       }
     `,
-    $query
+    $query,
   );
 
   useEffect(() => {
@@ -84,7 +84,7 @@ function RepoSearch({
         (edge) =>
           edge?.node?.id && (
             <RepoSummary key={edge?.node?.id} $repository={edge?.node} />
-          )
+          ),
       )}
       <button
         disabled={isLoadingNext}
@@ -119,7 +119,7 @@ function RepoSummary({
         }
       }
     `,
-    $repository
+    $repository,
   );
   const repoOwner =
     data.owner.__typename === "User"
@@ -131,33 +131,29 @@ function RepoSummary({
               viewerIsFollowing
             }
           `,
-          data.owner
+          data.owner,
         )
       : null;
   const [followUser, isFollowUserInFlight] =
-    useMutation<HandsOn4_FollowUserMutation>(
-      graphql`
-        mutation HandsOn4_FollowUserMutation($id: ID!) {
-          followUser(input: { userId: $id }) {
-            user {
-              ...HandsOn4_RepoSummary_owner_user
-            }
+    useMutation<HandsOn4_FollowUserMutation>(graphql`
+      mutation HandsOn4_FollowUserMutation($id: ID!) {
+        followUser(input: { userId: $id }) {
+          user {
+            ...HandsOn4_RepoSummary_owner_user
           }
         }
-      `
-    );
+      }
+    `);
   const [unfollowUser, isUnfollowUserInFlight] =
-    useMutation<HandsOn4_UnfollowUserMutation>(
-      graphql`
-        mutation HandsOn4_UnfollowUserMutation($id: ID!) {
-          unfollowUser(input: { userId: $id }) {
-            user {
-              ...HandsOn4_RepoSummary_owner_user
-            }
+    useMutation<HandsOn4_UnfollowUserMutation>(graphql`
+      mutation HandsOn4_UnfollowUserMutation($id: ID!) {
+        unfollowUser(input: { userId: $id }) {
+          user {
+            ...HandsOn4_RepoSummary_owner_user
           }
         }
-      `
-    );
+      }
+    `);
 
   const isInFlight = isFollowUserInFlight || isUnfollowUserInFlight;
 
