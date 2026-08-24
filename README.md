@@ -14,7 +14,7 @@
 
 - 언어 결정하기
 
-  - TypeScript와 ReScript 샌드박스가 각각 `sandbox/typescript` 와 `sandbox/rescript`에 존재합니다.
+  - TypeScript(React), ReScript(React), TypeScript(SolidJS) 샌드박스가 각각 `sandbox/typescript`, `sandbox/rescript`, `sandbox/solid`에 존재합니다.
 
   - 원하는 샌드박스의 폴더를 **VSCode의 폴더 열기 기능으로 엽니다** (Relay 익스텐션이 모노레포에서 잘 안 돔)
 

@@ -13,6 +13,7 @@ catalog:
   "@slidev/cli": 52.19.1
   "@slidev/theme-default": 0.25.0
   "@slidev/theme-seriph": 0.25.0
+  "@solidjs/router": 1.0.0
   "@types/node": 26.2.0
   "@types/react": 19.2.18
   "@types/react-dom": 19.2.4
@@ -21,6 +22,7 @@ catalog:
   "@vitejs/plugin-react": 6.1.0
   babel-plugin-relay: 20.1.1
   concurrently: 10.0.5
+  graphql: 16.14.2
   react: 19.2.8
   react-dom: 19.2.8
   react-relay: 20.1.1
@@ -31,6 +33,10 @@ catalog:
   rescript: 12.3.0
   rescript-relay: 4.5.1
   rescript-webapi: 0.10.0
+  solid-js: 1.9.15
+  solid-relay: 1.0.0-beta.28
   typescript: 7.0.2
   vite: 8.2.2
   vite-plugin-relay: 2.1.0
+  vite-plugin-relay-lite: 0.12.0
+  vite-plugin-solid: 2.11.14

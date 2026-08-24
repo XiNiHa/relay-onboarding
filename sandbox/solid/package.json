@@ -1,0 +1,29 @@
+{
+  "name": "relay-onboarding-sandbox-solid",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names vite,relay \"vite\" \"relay-compiler --watch\"",
+    "build": "pnpm run relay && pnpm run typecheck && vite build",
+    "preview": "vite preview",
+    "relay": "relay-compiler",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "relay-runtime": "catalog:",
+    "solid-js": "catalog:",
+    "solid-relay": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/relay-runtime": "catalog:",
+    "concurrently": "catalog:",
+    "graphql": "catalog:",
+    "relay-compiler": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-relay-lite": "catalog:",
+    "vite-plugin-solid": "catalog:"
+  }
+}
